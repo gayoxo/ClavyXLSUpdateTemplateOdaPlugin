@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fdi.ucm.server.updateparser.xlstemplate.struture;
+package fdi.ucm.server.updateparser.xlstemplateoda.struture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,6 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 public class HojaAntigua extends Hoja{
 
 	private java.util.List<List<HSSFCell>> ListaHijos;
-	private java.util.List<List<HSSFCell>> ListaAmbitos;
 
 	public HojaAntigua(String name) {
 		super(name);
@@ -38,12 +37,6 @@ public class HojaAntigua extends Hoja{
 		ListaHijos = listaHijos;
 	}
 	
-	public void setListaAmbitos(java.util.List<List<HSSFCell>> listaAmbitos) {
-		ListaAmbitos = listaAmbitos;
-	}
-	
-	public java.util.List<List<HSSFCell>> getListaAmbitos() {
-		return ListaAmbitos;
-	}
+
 	
 }

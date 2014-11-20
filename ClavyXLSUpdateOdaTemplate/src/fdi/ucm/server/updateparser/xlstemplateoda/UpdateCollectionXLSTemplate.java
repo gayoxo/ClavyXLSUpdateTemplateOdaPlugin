@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fdi.ucm.server.updateparser.xlstemplate;
+package fdi.ucm.server.updateparser.xlstemplateoda;
 
 import java.util.ArrayList;
 
@@ -34,7 +34,7 @@ public class UpdateCollectionXLSTemplate extends UpdateCollection{
 		String fileName = dateEntrada.get(0);
 		 System.out.println(fileName);
 		 C = new CollectionXLSTemplate();
-		 C.Leer_Archivo_Excel(fileName);
+		 C.Leer_Archivo_Excel(fileName,Log);
 		}
 		else
 		{

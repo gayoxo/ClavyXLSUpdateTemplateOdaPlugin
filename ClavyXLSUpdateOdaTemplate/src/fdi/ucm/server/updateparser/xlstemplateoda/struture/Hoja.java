@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fdi.ucm.server.updateparser.xlstemplate.struture;
+package fdi.ucm.server.updateparser.xlstemplateoda.struture;
 
 /**
  * @author Joaquin Gayoso-Cabada

@@ -1,4 +1,4 @@
-package fdi.ucm.server.updateparser.xlstemplate;
+package fdi.ucm.server.updateparser.xlstemplateoda;
 
 /**
  * Interface parseModel, funciones necesarias para parseal un objeto, parsear su modelo y sus instancias
