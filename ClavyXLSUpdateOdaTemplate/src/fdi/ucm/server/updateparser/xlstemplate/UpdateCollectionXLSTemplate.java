@@ -60,7 +60,7 @@ public class UpdateCollectionXLSTemplate extends UpdateCollection{
 
 	@Override
 	public String getName() {
-		return "Update by XLS Template Clavy";
+		return "Update by XLS Template Oda";
 	}
 
 	@Override
