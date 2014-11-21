@@ -499,12 +499,14 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valuecelda);
-			    		 coleccionstatica.getEstructuras().add(Doc);
+			    		if (FilaX!=0&&FilaX!=1)
+			    			coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
 			    		 }
 						} catch (Exception e) {
 							Doc.setClavilenoid(counterbase);
-							coleccionstatica.getEstructuras().add(Doc);
+							if (FilaX!=0&&FilaX!=1)
+								coleccionstatica.getEstructuras().add(Doc);
 							 documents.put(counterbase, Doc);
 							counterbase++;
 						}
@@ -523,8 +525,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	 Doc.setDescriptionText(Valor_de_celda);
 
 			    	
-			     }
-			     
+			     }  
 			     else
 			     {
 			    if (FilaX==0)
@@ -631,12 +632,14 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valuecelda);
-			    		 coleccionstatica.getEstructuras().add(Doc);
+			    		 if (FilaX!=0&&FilaX!=1)
+			    			 coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
 			    		 }
 						} catch (Exception e) {
 							Doc.setClavilenoid(counterbase);
-							coleccionstatica.getEstructuras().add(Doc);
+							if (FilaX!=0&&FilaX!=1)
+								coleccionstatica.getEstructuras().add(Doc);
 							 documents.put(counterbase, Doc);
 							counterbase++;
 						}
@@ -864,7 +867,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	public static void main(String[] args) {
 
 
-	  String fileName = "ejemplo2.xls";
+	  String fileName = "ejemplo3.xls";
 	 
 	  System.out.println(fileName);
 	 
