@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
-import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteStructure;
@@ -428,7 +427,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true);
+		proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false);
 	}
 
 	private void procesFiles(Hoja hoja_hssfFiles, Long counterbase) {
@@ -437,7 +436,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true);
+		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false);
 	}
 
 	private void procesVO(Hoja hoja_hssfDatos, Hoja hoja_hssfMetaDatos,
@@ -447,24 +446,20 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true);
-		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false);
-		proceshojaR(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false);
+		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true,false);
+		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false,false);
+		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false,true);
 		
 	}
 
-	private void proceshojaR(CompleteGrammar grammar, Hoja hoja_hssfRecursos,
-			HashMap<Integer, CompleteTextElementType> hash,
-			HashMap<String, CompleteTextElementType> hashPath,
-			HashMap<Long, CompleteDocuments> documents, Long counterbase,
-			boolean b) {
-		// TODO Auto-generated method stub
-		proceshoja(grammar,hoja_hssfRecursos,hash,hashPath,documents,counterbase, false);
-	}
 
 	private void proceshoja(CompleteGrammar grammar, Hoja hoja_hssfDatos,
 			HashMap<Integer, CompleteTextElementType> hash,
-			HashMap<String, CompleteTextElementType> hashPath, HashMap<Long, CompleteDocuments> documents, Long counterbase,Boolean Datos) {
+			HashMap<String, CompleteTextElementType> hashPath, HashMap<Long, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos) {
+		
+		
+		HashMap<Long,Integer> Documents=new HashMap<Long,Integer>();
+		
 		if (hoja_hssfDatos instanceof HojaAntigua)
 		{
 			List<List<HSSFCell>> Datos_celdas = ((HojaAntigua) hoja_hssfDatos).getListaHijos();
@@ -478,8 +473,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				  
 			   List<HSSFCell> Lista_celda_temporal = Datos_celdas.get(FilaX);
 			   
-			 
-			   ArrayList<CompleteTextElement> Ambitar=new ArrayList<CompleteTextElement>();
+			   Integer Ambito=0;	
 			   
 			   for (int ColumnaX = 0; ColumnaX < Lista_celda_temporal.size(); ColumnaX++) {
 			 
@@ -519,18 +513,24 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							 documents.put(counterbase, Doc);
 							counterbase++;
 						}
+			    	 
+			    	 Ambito=Documents.get(Doc.getClavilenoid());	
+			    	 if (Ambito==null)
+			    		 Ambito=0;
+			    	 else Ambito=new Integer(Ambito.intValue()+1);
+			    		 Documents.put(Doc.getClavilenoid(), Ambito);
 			    	
 			     }
 			     
 			     
 			     else if (ColumnaX==1&&Datos)
 			     {
-			    	 if (FilaX==1)
-				    	 try {
-				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
-							} catch (Exception e) {
-								grammar.setClavilenoid(-1l);
-							}
+//			    	 if (FilaX==1)
+//				    	 try {
+//				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
+//							} catch (Exception e) {
+//								grammar.setClavilenoid(-1l);
+//							}
 			    	 Doc.setDescriptionText(Valor_de_celda);
 
 			    	
@@ -565,7 +565,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst = new ArrayList<Integer>();
 			    	
-			    		
+			    	ALIst.add(Ambito);
 			    	
 			    	CT.setAmbitos(ALIst);
 			    	if (!CT.getValue().isEmpty())
@@ -581,20 +581,6 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     
 			   }
 			 
-			   int maximoIntegerV=buscaelmaximoInteger(Doc);
-			     for (CompleteTextElement completeTextElement : Ambitar) {
-			    	 ArrayList<Integer> maximoInteger=calculamaximo(completeTextElement.getHastype().getClavilenoid(),Doc);
-			    	
-			    	if (maximoInteger.size()>0)
-				    	if (maximoInteger.get(0)<0)
-				    		maximoInteger.set(0, 0);
-				    	else
-				    		{
-				    		maximoIntegerV++;
-				    		maximoInteger.set(0, maximoIntegerV);
-				    		}
-					completeTextElement.setAmbitos(maximoInteger);
-				}
 //			   System.out.println();
 			 
 			  }
@@ -612,8 +598,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				  
 				  CompleteDocuments Doc=new CompleteDocuments(coleccionstatica, grammar, Integer.toString(FilaX), "");  
 
-			 
-					ArrayList<CompleteTextElement> Ambitar=new ArrayList<CompleteTextElement>();
+				  Integer Ambito=0;	
+				 
 			   for (int ColumnaX = 0; ColumnaX < Lista_celda_temporal.size(); ColumnaX++) {
 			 
 			  
@@ -652,16 +638,22 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							 documents.put(counterbase, Doc);
 							counterbase++;
 						}
+			    	 
+			    	 Ambito=Documents.get(Doc.getClavilenoid());	
+			    	 if (Ambito==null)
+			    		 Ambito=0;
+			    	 else Ambito=new Integer(Ambito.intValue()+1);
+			    		 Documents.put(Doc.getClavilenoid(), Ambito);
 			    	
 			     }
 			     else if (ColumnaX==1&&Datos)
 			     {
-			    	 if (FilaX==1)
-				    	 try {
-				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
-							} catch (Exception e) {
-								grammar.setClavilenoid(-1l);
-							}
+//			    	 if (FilaX==1)
+//				    	 try {
+//				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
+//							} catch (Exception e) {
+//								grammar.setClavilenoid(-1l);
+//							}
 			    	 Doc.setDescriptionText(Valor_de_celda);
 
 			    	
@@ -697,6 +689,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst=new ArrayList<Integer>();
 			    	
+			    	ALIst.add(Ambito);
 			    	
 			    	CT.setAmbitos(ALIst);
 			    	
@@ -708,24 +701,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			 
 			   }
 			 
-//			   System.out.println();
 			 
 			  }
 			   
-			   int maximoIntegerV=buscaelmaximoInteger(Doc);
-			     for (CompleteTextElement completeTextElement : Ambitar) {
-			    	 ArrayList<Integer> maximoInteger=calculamaximo(completeTextElement.getHastype().getClavilenoid(),Doc);
-			    	
-			    	if (maximoInteger.size()>0)
-				    	if (maximoInteger.get(0)<0)
-				    		maximoInteger.set(0, 0);
-				    	else
-				    		{
-				    		maximoIntegerV++;
-				    		maximoInteger.set(0, maximoIntegerV);
-				    		}
-					completeTextElement.setAmbitos(maximoInteger);
-				}
 			   
 			  }
 		}
@@ -772,36 +750,6 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		return null;
 	}
 
-	private int buscaelmaximoInteger(CompleteDocuments doc) {
-		int max=0;
-		for (CompleteElement iterable_element : doc.getDescription()) {
-			if (iterable_element.getAmbitos().size()>0&&iterable_element.getAmbitos().get(0)>max)
-				max=iterable_element.getAmbitos().get(0);
-		}
-		return max;
-	}
-
-	private ArrayList<Integer> calculamaximo(Long total, CompleteDocuments doc) {
-		ArrayList<Integer> Max=new ArrayList<Integer>();
-		for (CompleteElement long1 : doc.getDescription()) {
-			if (total.equals(long1.getHastype().getClavilenoid())&&long1.getAmbitos().size()>0)
-				{
-				if (Max.isEmpty())
-					for (int i = 0; i < long1.getAmbitos().size(); i++) {
-								Max.add(0);
-					}
-				else if (Max.size()<=long1.getAmbitos().size())
-					for (int i = 0; i < long1.getAmbitos().size(); i++) {
-							if (i>Max.size())
-								Max.add(0);
-							
-								
-					}
-
-				}
-		}
-		return Max;
-	}
 
 
 
