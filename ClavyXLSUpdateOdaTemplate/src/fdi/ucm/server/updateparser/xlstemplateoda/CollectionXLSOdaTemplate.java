@@ -449,8 +449,17 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
 		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true);
 		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false);
-		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false);
+		proceshojaR(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false);
 		
+	}
+
+	private void proceshojaR(CompleteGrammar grammar, Hoja hoja_hssfRecursos,
+			HashMap<Integer, CompleteTextElementType> hash,
+			HashMap<String, CompleteTextElementType> hashPath,
+			HashMap<Long, CompleteDocuments> documents, Long counterbase,
+			boolean b) {
+		// TODO Auto-generated method stub
+		proceshoja(grammar,hoja_hssfRecursos,hash,hashPath,documents,counterbase, false);
 	}
 
 	private void proceshoja(CompleteGrammar grammar, Hoja hoja_hssfDatos,
