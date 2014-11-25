@@ -208,19 +208,19 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			   
 			   String Name=Hoja_hssf.getSheetName(); 
 			   
-			   if (Name.equals("Datos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.DATOS)) 
 				   Datos=true;
 			   
-			   if (Name.equals("Metadatos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.META_DATOS)) 
 				   Metadatos=true;
 			   
-			   if (Name.equals("Recursos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.RECURSOS2)) 
 				   Recursos=true;
 			   
-			   if (Name.equals("Archivos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.ARCHIVOS)) 
 				   Archivos=true;
 			   
-			   if (Name.equals("URL")) 
+			   if (Name.equals(NameConstantsOdAaXLS.UR_LS)) 
 				   URL=true;
 			   
 		   }
@@ -229,7 +229,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			   Log.add("Pestaña datos no encontrada");
 		   
 		   if (!Metadatos) 
-			   Log.add("Pestaña Metadatos no encontrada");
+			   Log.add("Pestaña MetaDatos no encontrada");
 		   
 		   if (!Recursos) 
 			   Log.add("Pestaña Recursos no encontrada");
@@ -238,7 +238,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			   Log.add("Pestaña Archivos no encontrada");
 		   
 		   if (!URL) 
-			   Log.add("Pestaña URL no encontrada");
+			   Log.add("Pestaña URLs no encontrada");
 		   
 		
 	}
@@ -514,23 +514,26 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							counterbase++;
 						}
 			    	 
+			    	 if (Recursos)
+			    	 {
 			    	 Ambito=Documents.get(Doc.getClavilenoid());	
 			    	 if (Ambito==null)
 			    		 Ambito=0;
 			    	 else Ambito=new Integer(Ambito.intValue()+1);
 			    		 Documents.put(Doc.getClavilenoid(), Ambito);
+			    	 }
 			    	
 			     }
 			     
 			     
 			     else if (ColumnaX==1&&Datos)
 			     {
-//			    	 if (FilaX==1)
-//				    	 try {
-//				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
-//							} catch (Exception e) {
-//								grammar.setClavilenoid(-1l);
-//							}
+			    	 if (FilaX==1)
+				    	 try {
+				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
+							} catch (Exception e) {
+								grammar.setClavilenoid(-1l);
+							}
 			    	 Doc.setDescriptionText(Valor_de_celda);
 
 			    	
@@ -565,7 +568,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst = new ArrayList<Integer>();
 			    	
-			    	ALIst.add(Ambito);
+			    	if (Recursos)
+			    		ALIst.add(Ambito);
 			    	
 			    	CT.setAmbitos(ALIst);
 			    	if (!CT.getValue().isEmpty())
@@ -639,21 +643,22 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							counterbase++;
 						}
 			    	 
+			    	 if (Recursos){
 			    	 Ambito=Documents.get(Doc.getClavilenoid());	
 			    	 if (Ambito==null)
 			    		 Ambito=0;
 			    	 else Ambito=new Integer(Ambito.intValue()+1);
 			    		 Documents.put(Doc.getClavilenoid(), Ambito);
-			    	
+			    	 }
 			     }
 			     else if (ColumnaX==1&&Datos)
 			     {
-//			    	 if (FilaX==1)
-//				    	 try {
-//				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
-//							} catch (Exception e) {
-//								grammar.setClavilenoid(-1l);
-//							}
+			    	 if (FilaX==1)
+				    	 try {
+				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
+							} catch (Exception e) {
+								grammar.setClavilenoid(-1l);
+							}
 			    	 Doc.setDescriptionText(Valor_de_celda);
 
 			    	
@@ -689,7 +694,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst=new ArrayList<Integer>();
 			    	
-			    	ALIst.add(Ambito);
+			    	if (Recursos)
+			    		ALIst.add(Ambito);
 			    	
 			    	CT.setAmbitos(ALIst);
 			    	
@@ -712,7 +718,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 
 	private Hoja findDatos(List<Hoja> hojasEntrada) {
 		for (Hoja hoja : hojasEntrada) {
-			if (hoja.getName().equals("Datos"))
+			if (hoja.getName().equals(NameConstantsOdAaXLS.DATOS))
 				return hoja;
 		}
 		return null;
@@ -720,7 +726,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	
 	private Hoja findMetadatos(List<Hoja> hojasEntrada) {
 		for (Hoja hoja : hojasEntrada) {
-			if (hoja.getName().equals("Metadatos"))
+			if (hoja.getName().equals(NameConstantsOdAaXLS.META_DATOS))
 				return hoja;
 		}
 		return null;
@@ -728,7 +734,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	
 	private Hoja findRecursos(List<Hoja> hojasEntrada) {
 		for (Hoja hoja : hojasEntrada) {
-			if (hoja.getName().equals("Recursos"))
+			if (hoja.getName().equals(NameConstantsOdAaXLS.RECURSOS2))
 				return hoja;
 		}
 		return null;
@@ -736,7 +742,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	
 	private Hoja findArchivos(List<Hoja> hojasEntrada) {
 		for (Hoja hoja : hojasEntrada) {
-			if (hoja.getName().equals("Archivos"))
+			if (hoja.getName().equals(NameConstantsOdAaXLS.ARCHIVOS))
 				return hoja;
 		}
 		return null;
@@ -744,7 +750,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	
 	private Hoja findURLs(List<Hoja> hojasEntrada) {
 		for (Hoja hoja : hojasEntrada) {
-			if (hoja.getName().equals("URLs"))
+			if (hoja.getName().equals(NameConstantsOdAaXLS.UR_LS))
 				return hoja;
 		}
 		return null;
