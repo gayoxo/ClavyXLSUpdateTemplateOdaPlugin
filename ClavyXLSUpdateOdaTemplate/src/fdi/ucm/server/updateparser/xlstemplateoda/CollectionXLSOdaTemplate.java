@@ -348,19 +348,19 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			   
 			   String Name=Hoja_hssf.getSheetName(); 
 			   
-			   if (Name.equals("Datos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.DATOS)) 
 				   Datos=true;
 			   
-			   if (Name.equals("Metadatos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.META_DATOS)) 
 				   Metadatos=true;
 			   
-			   if (Name.equals("Recursos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.RECURSOS2)) 
 				   Recursos=true;
 			   
-			   if (Name.equals("Archivos")) 
+			   if (Name.equals(NameConstantsOdAaXLS.ARCHIVOS)) 
 				   Archivos=true;
 			   
-			   if (Name.equals("URL")) 
+			   if (Name.equals(NameConstantsOdAaXLS.UR_LS)) 
 				   URL=true;
 			   
 		   }
