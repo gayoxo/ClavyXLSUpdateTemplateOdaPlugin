@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import fdi.ucm.server.modelComplete.ImportExportDataEnum;
 import fdi.ucm.server.modelComplete.ImportExportPair;
 import fdi.ucm.server.modelComplete.UpdateCollection;
+import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.CompleteCollectionAndLog;
 
 /**
@@ -25,7 +26,7 @@ public class UpdateCollectionXLSOdaTemplate extends UpdateCollection{
 	
 	@Override
 	public CompleteCollectionAndLog processCollecccion(
-			ArrayList<String> dateEntrada) {
+			ArrayList<String> dateEntrada, CompleteCollection ColeccionActual) {
 		
 		CollectionXLSOdaTemplate C=null;
 		 ArrayList<String> Log = new ArrayList<String>();
