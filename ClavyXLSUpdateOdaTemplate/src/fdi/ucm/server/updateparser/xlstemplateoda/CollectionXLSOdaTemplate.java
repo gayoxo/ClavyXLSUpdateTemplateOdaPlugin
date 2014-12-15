@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
@@ -14,6 +15,7 @@ import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteLinkElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteStructure;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteTextElementType;
 import fdi.ucm.server.updateparser.xlstemplateoda.struture.Hoja;
@@ -50,6 +52,13 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private HashMap<Integer, Long> TablaOdaClavyModel;
 	private HashMap<Integer, Long> TablaOdaClavyDocuments;
 	private CompleteTextElementType IDOV;
+	private CompleteGrammar Files;
+	private CompleteGrammar URLS;
+	private CompleteGrammar VirtualObject;
+	private CompleteElementType URI;
+	private CompleteElementType FilesFisico;
+	private CompleteElementType FilesOwner;
+	private HashSet<Long> TablaLongIds;
 
 	
 	public CollectionXLSOdaTemplate() {
@@ -86,13 +95,29 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	   */
 	 
+		 Log=log;
+		 
 			TablaOdaClavyModel= new HashMap<Integer,Long>();
 			TablaOdaClavyDocuments= new HashMap<Integer,Long>();
+			TablaLongIds= new HashSet<Long>();
 			
 			generaTablaOdaClavyModel1(coleccionActual.getMetamodelGrammar());
 			generaTablaOdaClavyDocuments(coleccionActual.getEstructuras());
+			generaTablaOdaClavyLink1(coleccionActual.getMetamodelGrammar());
 			
-		 Log=log;
+			Files=findFiles(coleccionActual.getMetamodelGrammar());
+			URLS=findURLsG(coleccionActual.getMetamodelGrammar());
+			VirtualObject=findVO(coleccionActual.getMetamodelGrammar());
+			
+			if (Files==null)
+				Log.add("File no encontrados en la coleccion de destino");
+			if (URLS==null)
+				Log.add("URL no encontradas en la coleccion de destino");
+			if (VirtualObject==null)
+				Log.add("Virtual Object no encontrado en la coleccion de destino");
+			
+		if ((Files==null)&&(URLS==null)&&(VirtualObject==null)) 
+			return;
 		 
 	  ArrayList<Hoja> Hojas=new ArrayList<Hoja>();
 
@@ -121,6 +146,34 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 }
 	 
 	 /**
+	  * 
+	  * @param metamodelGrammar
+	  */
+	 private void generaTablaOdaClavyLink1(List<CompleteGrammar> metamodelGrammar) {
+		 for (CompleteGrammar completeGrammar : metamodelGrammar) {
+			 generaTablaOdaClavyLink2(completeGrammar.getSons());
+			}
+		
+	}
+
+	 /**
+	  * 
+	  * @param sons
+	  */
+	private void generaTablaOdaClavyLink2(List<CompleteStructure> sons) {
+		for (CompleteStructure completeStructure : sons) {
+			if (completeStructure instanceof CompleteLinkElementType)
+				TablaLongIds.add(completeStructure.getClavilenoid());
+	
+			
+			generaTablaOdaClavyLink2(completeStructure.getSons());
+				
+			
+		}
+		
+	}
+
+	/**
 	  * 
 	  * @param estructuras
 	  */
@@ -472,13 +525,13 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		 Hoja Hoja_hssfFiles= findArchivos(HojasEntrada);
 		 Hoja Hoja_hssfURL= findURLs(HojasEntrada);
 		   
-		if (Hoja_hssfDatos!=null)
+		if (VirtualObject!=null&&Hoja_hssfDatos!=null)
 		   procesVO(Hoja_hssfDatos,Hoja_hssfMetaDatos,Hoja_hssfRecursos,counterbase);
 		 
-		if (Hoja_hssfFiles!=null)
+		if (Files!=null&&Hoja_hssfFiles!=null)
 			   procesFiles(Hoja_hssfFiles,counterbase);
 		
-		if (Hoja_hssfURL!=null)
+		if (URLS!=null&&Hoja_hssfURL!=null)
 			   procesUrls(Hoja_hssfURL,counterbase);
 		 
  
@@ -491,39 +544,64 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 
 	private void procesUrls(Hoja hoja_hssfURL, Long counterbase) {
 		CompleteGrammar Grammar=new CompleteGrammar("Urls", "Urls", coleccionstatica);
+		Grammar.setClavilenoid(URLS.getClavilenoid());
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false);
+		//TODO
+		URI=findURI(URLS.getSons());
+		if (URI==null)
+			{
+			Log.add("Coleccion destino no tiene el tipo 'URI' para las Urls");
+			URI=new CompleteElementType(-1l,"Generado",URLS);
+			}
+		
+			proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false,false,true);
 	}
 
 	private void procesFiles(Hoja hoja_hssfFiles, Long counterbase) {
 		CompleteGrammar Grammar=new CompleteGrammar("Files", "Files", coleccionstatica);
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
+		Grammar.setClavilenoid(Files.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false);
+		
+		FilesFisico=findFilesFisico(Files.getSons());
+		FilesOwner=findOwner(Files.getSons());
+		if (FilesFisico==null)
+			{
+			Log.add("Coleccion destino no tiene el tipo 'File' para las Files");
+			FilesFisico=new CompleteElementType(-1l,"Generado",Files);
+			}
+		if (FilesOwner==null)
+		{
+		Log.add("Coleccion destino no tiene el tipo 'Idov Owner' para las Files");
+		FilesOwner=new CompleteElementType(-2l,"Generado",Files);
+		}
+		
+		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false,true,false);
 	}
 
 	private void procesVO(Hoja hoja_hssfDatos, Hoja hoja_hssfMetaDatos,
 			Hoja hoja_hssfRecursos, Long counterbase) {
 		CompleteGrammar Grammar=new CompleteGrammar("Virtual object", "Virtual object", coleccionstatica);
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
+		Grammar.setClavilenoid(VirtualObject.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true,false);
-		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false,false);
-		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false,true);
+		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true,false,false,false);
+		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false,false,false,false);
+		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false,true,false,false);
 		
 	}
 
 
 	private void proceshoja(CompleteGrammar grammar, Hoja hoja_hssfDatos,
 			HashMap<Integer, CompleteTextElementType> hash,
-			HashMap<String, CompleteTextElementType> hashPath, HashMap<Long, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos) {
+			HashMap<String, CompleteTextElementType> hashPath, HashMap<Long, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos,Boolean Files, Boolean URls) {
 		
 		
 		HashMap<Long,Integer> Documents=new HashMap<Long,Integer>();
@@ -563,7 +641,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	 try {
 			    		 
 			    		 //TODO
-			    		 Long valueCeldaL;
+			    		 Long valueCeldaL; 
+			    		 Integer valueCeldaLI=null;
 						if (Valor_de_celda.startsWith("#"))
 			    			 {
 			    			 Valor_de_celda=Valor_de_celda.substring(1);
@@ -575,7 +654,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 {
 			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
 				    		 int valuecelda=(int)Valorposible;
-				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+				    		 valueCeldaLI = Integer.valueOf(valuecelda);
 				    		 valueCeldaL=TablaOdaClavyDocuments.get(valueCeldaLI);
 				    		 if (valueCeldaL==null)
 				    			 valueCeldaL=(long)valuecelda;
@@ -589,6 +668,11 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
+			    		 if (valueCeldaLI!=null)
+		    			 {
+		    			 CompleteTextElement CTE=new CompleteTextElement(IDOV, Integer.toString(valueCeldaLI));
+		    			 Doc.getDescription().add(CTE);
+		    			 }
 			    		if (FilaX!=0&&FilaX!=1)
 			    			coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
@@ -615,13 +699,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     
 			     else if (ColumnaX==1&&Datos)
 			     {
-			    	 if (FilaX==1)
-				    	 try {
-				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
-							} catch (Exception e) {
-								grammar.setClavilenoid(-1l);
-							}
-			    	 Doc.setDescriptionText(Valor_de_celda);
+			    	 if (FilaX!=1)
+				    	  Doc.setDescriptionText(Valor_de_celda);
 
 			    	
 			     }  
@@ -630,11 +709,17 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    if (FilaX==0)
 			    	 {
 			    	CompleteTextElementType C=generaStructura(Valor_de_celda,grammar,hashPath);
+			    	if (URls&&ColumnaX==2)
+			    			C.setClavilenoid(URI.getClavilenoid());
+			    	if (Files&&ColumnaX==2)
+		    			C.setClavilenoid(FilesOwner.getClavilenoid());
+			    	if (Files&&ColumnaX==3)
+		    			C.setClavilenoid(FilesFisico.getClavilenoid());
 			    	hash.put(new Integer(ColumnaX), C);
 //			    	System.out.print("Columna:" + Valor_de_celda + "\t\t");
 			    	
 			    	 }
-			    else if (FilaX==1)
+			    else if (!URls&&!Files&&(FilaX==1))
 		    	 {
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 			    	try {
@@ -669,8 +754,20 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		    	 }
 			    else 
 			    	{
-			    	
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
+
+			    	if (TablaLongIds.contains(C.getClavilenoid())&&Valor_de_celda.startsWith("#"))
+			    		Valor_de_celda=Valor_de_celda.substring(1);
+			    	else
+			    		{
+			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 int valuecelda=(int)Valorposible;
+			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+			    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+			    		 if (valueCeldaL!=null)
+			    			 Valor_de_celda=Long.toString(valueCeldaL);
+			    		}
+			    	
 			    	CompleteTextElement CT=new CompleteTextElement(C, Valor_de_celda);
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst = new ArrayList<Integer>();
@@ -800,11 +897,18 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    if (FilaX==0)
 			    	 {
 			    	CompleteTextElementType C=generaStructura(Valor_de_celda,grammar,hashPath);
+			    	
+				    if (URls&&ColumnaX==2)
+			    			C.setClavilenoid(URI.getClavilenoid());
+			    	if (Files&&ColumnaX==2)
+		    			C.setClavilenoid(FilesOwner.getClavilenoid());
+			    	if (Files&&ColumnaX==3)
+		    			C.setClavilenoid(FilesFisico.getClavilenoid());
 			    	hash.put(new Integer(ColumnaX), C);
 //			    	System.out.print("Columna:" + Valor_de_celda + "\t\t");
 			    	
 			    	 }
-			    else if (FilaX==1)
+			    else if (!URls&&!Files&&(FilaX==1))
 		    	 {
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 			    	try {
@@ -840,6 +944,19 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	{
 			    	
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
+
+			    	if (TablaLongIds.contains(C.getClavilenoid())&&Valor_de_celda.startsWith("#"))
+			    		Valor_de_celda=Valor_de_celda.substring(1);
+			    	else
+			    		{
+			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 int valuecelda=(int)Valorposible;
+			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+			    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+			    		 if (valueCeldaL!=null)
+			    			 Valor_de_celda=Long.toString(valueCeldaL);
+			    		}
+			    	
 			    	CompleteTextElement CT=new CompleteTextElement(C, Valor_de_celda);
 			    	CT.setDocumentsFather(Doc);
 			    	ArrayList<Integer> ALIst=new ArrayList<Integer>();
@@ -1003,5 +1120,53 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		return coleccionstatica;
 	}
 	
+	 
 
+	private static CompleteGrammar findVO(List<CompleteGrammar> metamodelGrammar) {
+		for (CompleteGrammar completeGrammar : metamodelGrammar) {
+			if (StaticFuctionsOdAaXLS.isVirtualObject(completeGrammar))
+				return completeGrammar;
+		}
+		return null;
+	}
+
+	private static CompleteGrammar findFiles(List<CompleteGrammar> metamodelGrammar) {
+		for (CompleteGrammar completeGrammar : metamodelGrammar) {
+			if (StaticFuctionsOdAaXLS.isFiles(completeGrammar))
+				return completeGrammar;
+		}
+		return null;
+	}
+	
+	private static CompleteGrammar findURLsG(List<CompleteGrammar> metamodelGrammar) {
+		for (CompleteGrammar completeGrammar : metamodelGrammar) {
+			if (StaticFuctionsOdAaXLS.isURL(completeGrammar))
+				return completeGrammar;
+		}
+		return null;
+	}
+	
+	private static CompleteElementType findFilesFisico(List<CompleteStructure> metaStructures) {
+		for (CompleteStructure completeStructure : metaStructures) {
+			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isFileFisico((CompleteElementType)completeStructure))
+				return (CompleteElementType) completeStructure;
+		}
+		return null;
+	}
+	
+	private static CompleteElementType findOwner(List<CompleteStructure> metaStructures) {
+		for (CompleteStructure completeStructure : metaStructures) {
+			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isOwner((CompleteElementType)completeStructure))
+				return (CompleteElementType) completeStructure;
+		}
+		return null;
+	}
+	
+	private static CompleteElementType findURI(List<CompleteStructure> metaStructures) {
+		for (CompleteStructure completeStructure : metaStructures) {
+			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isURI((CompleteElementType)completeStructure))
+				return (CompleteElementType) completeStructure;
+		}
+		return null;
+	}
 }
