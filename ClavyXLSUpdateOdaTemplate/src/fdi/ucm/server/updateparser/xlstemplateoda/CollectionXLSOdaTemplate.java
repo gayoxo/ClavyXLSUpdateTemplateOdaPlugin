@@ -10,7 +10,9 @@ import java.util.HashMap;
 
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
+import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteStructure;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteTextElementType;
@@ -45,6 +47,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private static final String COLECCION_A_APARTIR_DE_UN_XLS = "Coleccion a partir de un XLS";
 	private CompleteCollection coleccionstatica;
 	private ArrayList<String> Log;
+	private HashMap<Integer, Long> TablaOdaClavyModel;
+	private HashMap<Integer, Long> TablaOdaClavyDocuments;
 
 	
 	public CollectionXLSOdaTemplate() {
@@ -70,9 +74,10 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	  *            - Nombre de archivo Excel.
 	 * @param log 
+	 * @param coleccionActual 
 	 
 	  */
-	 public void Leer_Archivo_Excel(String Nombre_Archivo, ArrayList<String> log) {
+	 public void Leer_Archivo_Excel(String Nombre_Archivo, ArrayList<String> log, CompleteCollection coleccionActual) {
 	 
 	  /**
 	 
@@ -80,6 +85,12 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	   */
 	 
+			TablaOdaClavyModel= new HashMap<Integer,Long>();
+			TablaOdaClavyDocuments= new HashMap<Integer,Long>();
+			
+			generaTablaOdaClavyModel1(coleccionActual.getMetamodelGrammar());
+			generaTablaOdaClavyDocuments(coleccionActual.getEstructuras());
+			
 		 Log=log;
 		 
 	  ArrayList<Hoja> Hojas=new ArrayList<Hoja>();
@@ -108,7 +119,60 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	 }
 	 
-	 private ArrayList<Hoja> GENERAR_XLSX(String Nombre_Archivo) {
+	 /**
+	  * 
+	  * @param estructuras
+	  */
+	 private void generaTablaOdaClavyDocuments(
+			List<CompleteDocuments> estructuras) {
+		for (CompleteDocuments completeDocuments : estructuras) {
+			for (CompleteElement completeelem : completeDocuments.getDescription()) {
+				if (completeelem.getHastype()!=null&&completeelem.getHastype() instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isIDOV((CompleteTextElementType)completeelem.getHastype()))
+					{
+					String Value = ((CompleteTextElement)completeelem).getValue();
+					try {
+						Integer Idovv=Integer.parseInt(Value);
+						TablaOdaClavyDocuments.put(Idovv, completeDocuments.getClavilenoid());
+					} catch (Exception e) {
+					}
+					}
+			}
+		}
+		
+	}
+
+	 /**
+	  * 
+	  * @param metamodelGrammar
+	  */
+	private void generaTablaOdaClavyModel1(List<CompleteGrammar> metamodelGrammar) {
+		for (CompleteGrammar completeGrammar : metamodelGrammar) {
+			generaTablaOdaClavyModel2(completeGrammar.getSons());
+		}
+		
+	}
+
+	/**
+	 * 
+	 * @param sons
+	 */
+	private void generaTablaOdaClavyModel2(List<CompleteStructure> sons) {
+		for (CompleteStructure completeStructure : sons) {
+			if (completeStructure instanceof CompleteElementType)
+			{
+				Integer IdovOda=StaticFuctionsOdAaXLS.getIDODAD((CompleteElementType)completeStructure);
+				if (IdovOda!=null)
+					TablaOdaClavyModel.put(IdovOda,completeStructure.getClavilenoid());
+			}
+			
+			generaTablaOdaClavyModel2(completeStructure.getSons());
+				
+			
+		}
+		
+	}
+
+	private ArrayList<Hoja> GENERAR_XLSX(String Nombre_Archivo) {
 	 
 		 ArrayList<Hoja> Salida=new ArrayList<Hoja>(); 
 		 
@@ -493,15 +557,34 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     if (ColumnaX==0)
 			     {
 			    	 try {
-			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
-			    		 long valuecelda=(long)Valorposible;
-			    		 Long valueCeldaL = Long.valueOf(valuecelda);
+			    		 
+			    		 //TODO
+			    		 Long valueCeldaL;
+						if (Valor_de_celda.startsWith("#"))
+			    			 {
+			    			 Valor_de_celda=Valor_de_celda.substring(1);
+			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+				    		 long valuecelda=(long)Valorposible;
+				    		 valueCeldaL = Long.valueOf(valuecelda);
+			    			 }
+			    		 else
+			    			 {
+			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+				    		 int valuecelda=(int)Valorposible;
+				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+				    		 valueCeldaL=TablaOdaClavyDocuments.get(valueCeldaLI);
+				    		 if (valueCeldaL==null)
+				    			 valueCeldaL=(long)valuecelda;
+			    			 }
+			    		 
+			    		 
+			    		 
 			    		 CompleteDocuments Doc2 = documents.get(valueCeldaL );
 			    		 if (Doc2!=null)
 			    			 Doc=Doc2;
 			    		 else
 			    		 {
-			    		 Doc.setClavilenoid(valuecelda);
+			    		 Doc.setClavilenoid(valueCeldaL);
 			    		if (FilaX!=0&&FilaX!=1)
 			    			coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
@@ -551,7 +634,27 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		    	 {
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 			    	try {
-			    		C.setClavilenoid(Long.parseLong(Valor_de_celda));
+			    		
+			    		//TODO
+			    		Long valueCeldaL;
+			    		if (Valor_de_celda.startsWith("#"))
+		    			 {
+		    			 Valor_de_celda=Valor_de_celda.substring(1);
+		    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 long valuecelda=(long)Valorposible;
+			    		 valueCeldaL = Long.valueOf(valuecelda);
+		    			 }
+		    		 else
+		    			 {
+		    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 int valuecelda=(int)Valorposible;
+			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+			    		 valueCeldaL=TablaOdaClavyModel.get(valueCeldaLI);
+			    		 if (valueCeldaL==null)
+			    			 valueCeldaL=(long)valuecelda;
+		    			 }
+			    		
+			    		C.setClavilenoid(valueCeldaL);
 					} catch (Exception e) {
 						C.setClavilenoid(-1l);
 					}
@@ -622,15 +725,33 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     if (ColumnaX==0)
 			     {
 			    	 try {
-			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
-			    		 long valuecelda=(long)Valorposible;
-			    		 Long valueCeldaL = Long.valueOf(valuecelda);
+
+
+			    		//TODO
+			    		 Long valueCeldaL;
+						if (Valor_de_celda.startsWith("#"))
+			    			 {
+			    			 Valor_de_celda=Valor_de_celda.substring(1);
+			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+				    		 long valuecelda=(long)Valorposible;
+				    		 valueCeldaL = Long.valueOf(valuecelda);
+			    			 }
+			    		 else
+			    			 {
+			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+				    		 int valuecelda=(int)Valorposible;
+				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+				    		 valueCeldaL=TablaOdaClavyDocuments.get(valueCeldaLI);
+				    		 if (valueCeldaL==null)
+				    			 valueCeldaL=(long)valuecelda;
+			    			 }
+			    		 
 			    		 CompleteDocuments Doc2 = documents.get(valueCeldaL );
 			    		 if (Doc2!=null)
 			    			 Doc=Doc2;
 			    		 else
 			    		 {
-			    		 Doc.setClavilenoid(valuecelda);
+			    		 Doc.setClavilenoid(valueCeldaL);
 			    		 if (FilaX!=0&&FilaX!=1)
 			    			 coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
@@ -677,7 +798,26 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		    	 {
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 			    	try {
-			    		C.setClavilenoid(Long.parseLong(Valor_de_celda));
+			    		//TODO
+			    		Long valueCeldaL;
+			    		if (Valor_de_celda.startsWith("#"))
+		    			 {
+		    			 Valor_de_celda=Valor_de_celda.substring(1);
+		    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 long valuecelda=(long)Valorposible;
+			    		 valueCeldaL = Long.valueOf(valuecelda);
+		    			 }
+		    		 else
+		    			 {
+		    			 double Valorposible = Double.parseDouble(Valor_de_celda);
+			    		 int valuecelda=(int)Valorposible;
+			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+			    		 valueCeldaL=TablaOdaClavyModel.get(valueCeldaLI);
+			    		 if (valueCeldaL==null)
+			    			 valueCeldaL=(long)valuecelda;
+		    			 }
+			    		
+			    		C.setClavilenoid(valueCeldaL);
 					} catch (Exception e) {
 						C.setClavilenoid(-1l);
 					}
@@ -835,7 +975,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	  System.out.println(fileName);
 	 
 	 CollectionXLSOdaTemplate C = new CollectionXLSOdaTemplate();
-	 C.Leer_Archivo_Excel(fileName,new ArrayList<String>());
+	 C.Leer_Archivo_Excel(fileName,new ArrayList<String>(),new CompleteCollection());
 	 
 	 System.out.println(C.getColeccion());
 	 }

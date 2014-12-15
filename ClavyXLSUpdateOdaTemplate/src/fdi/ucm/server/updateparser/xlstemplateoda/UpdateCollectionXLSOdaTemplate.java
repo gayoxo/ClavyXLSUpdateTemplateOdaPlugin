@@ -27,7 +27,7 @@ public class UpdateCollectionXLSOdaTemplate extends UpdateCollection{
 	@Override
 	public CompleteCollectionAndLog processCollecccion(
 			ArrayList<String> dateEntrada, CompleteCollection ColeccionActual) {
-		
+	
 		CollectionXLSOdaTemplate C=null;
 		 ArrayList<String> Log = new ArrayList<String>();
 		if (dateEntrada.size()>0 && !dateEntrada.get(0).isEmpty())
@@ -35,7 +35,7 @@ public class UpdateCollectionXLSOdaTemplate extends UpdateCollection{
 		String fileName = dateEntrada.get(0);
 		 System.out.println(fileName);
 		 C = new CollectionXLSOdaTemplate();
-		 C.Leer_Archivo_Excel(fileName,Log);
+		 C.Leer_Archivo_Excel(fileName,Log,ColeccionActual);
 		}
 		else
 		{
