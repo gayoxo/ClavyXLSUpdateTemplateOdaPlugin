@@ -49,6 +49,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private ArrayList<String> Log;
 	private HashMap<Integer, Long> TablaOdaClavyModel;
 	private HashMap<Integer, Long> TablaOdaClavyDocuments;
+	private CompleteTextElementType IDOV;
 
 	
 	public CollectionXLSOdaTemplate() {
@@ -163,6 +164,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				Integer IdovOda=StaticFuctionsOdAaXLS.getIDODAD((CompleteElementType)completeStructure);
 				if (IdovOda!=null)
 					TablaOdaClavyModel.put(IdovOda,completeStructure.getClavilenoid());
+				
+				if (completeStructure instanceof CompleteTextElementType && StaticFuctionsOdAaXLS.isIDOV((CompleteTextElementType) (completeStructure)))
+					IDOV=(CompleteTextElementType)completeStructure;
 			}
 			
 			generaTablaOdaClavyModel2(completeStructure.getSons());
@@ -729,6 +733,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 
 			    		//TODO
 			    		 Long valueCeldaL;
+			    		 Integer valueCeldaLI=null;
 						if (Valor_de_celda.startsWith("#"))
 			    			 {
 			    			 Valor_de_celda=Valor_de_celda.substring(1);
@@ -740,7 +745,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 {
 			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
 				    		 int valuecelda=(int)Valorposible;
-				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+				    		 valueCeldaLI = Integer.valueOf(valuecelda);
 				    		 valueCeldaL=TablaOdaClavyDocuments.get(valueCeldaLI);
 				    		 if (valueCeldaL==null)
 				    			 valueCeldaL=(long)valuecelda;
@@ -752,6 +757,11 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
+			    		 if (valueCeldaLI!=null)
+			    			 {
+			    			 CompleteTextElement CTE=new CompleteTextElement(IDOV, Integer.toString(valueCeldaLI));
+			    			 Doc.getDescription().add(CTE);
+			    			 }
 			    		 if (FilaX!=0&&FilaX!=1)
 			    			 coleccionstatica.getEstructuras().add(Doc);
 			    		 documents.put(valueCeldaL, Doc);
