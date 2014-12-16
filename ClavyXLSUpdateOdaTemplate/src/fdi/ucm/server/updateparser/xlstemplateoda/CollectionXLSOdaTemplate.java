@@ -12,6 +12,8 @@ import java.util.HashSet;
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
+import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementFile;
+import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementURL;
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
@@ -25,6 +27,7 @@ import fdi.ucm.server.updateparser.xlstemplateoda.struture.HojaNueva;
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -58,7 +61,11 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private CompleteElementType URI;
 	private CompleteElementType FilesFisico;
 	private CompleteElementType FilesOwner;
-	private HashSet<Long> TablaLongIds;
+	private HashSet<Long> TablaLiksIds;
+	private HashMap<String,Long> TablaReparacionFilesEquiv;
+	private HashMap<String,Long> TablaReparacionUrlsEquiv;
+	private HashSet<Long> TablaReparacionFiles;
+	private HashSet<Long> TablaReparacionUrls;
 
 	
 	public CollectionXLSOdaTemplate() {
@@ -99,15 +106,52 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		 
 			TablaOdaClavyModel= new HashMap<Integer,Long>();
 			TablaOdaClavyDocuments= new HashMap<Integer,Long>();
-			TablaLongIds= new HashSet<Long>();
+			TablaLiksIds= new HashSet<Long>();
+			TablaReparacionFilesEquiv= new HashMap<String,Long>();
+			TablaReparacionUrlsEquiv= new HashMap<String,Long>();
+			TablaReparacionFiles= new HashSet<Long>();
+			TablaReparacionUrls= new HashSet<Long>();
 			
 			generaTablaOdaClavyModel1(coleccionActual.getMetamodelGrammar());
 			generaTablaOdaClavyDocuments(coleccionActual.getEstructuras());
 			generaTablaOdaClavyLink1(coleccionActual.getMetamodelGrammar());
 			
+			
 			Files=findFiles(coleccionActual.getMetamodelGrammar());
 			URLS=findURLsG(coleccionActual.getMetamodelGrammar());
 			VirtualObject=findVO(coleccionActual.getMetamodelGrammar());
+			
+			
+			
+			if (Files!=null)
+				{
+				FilesFisico=findFilesFisico(Files.getSons());
+				FilesOwner=findOwner(Files.getSons());
+				if (FilesFisico==null)
+					{
+					Log.add("Coleccion destino no tiene el tipo 'File' para las Files");
+					FilesFisico=new CompleteElementType(-1l,"Generado",Files);
+					}
+				if (FilesOwner==null)
+					{
+					Log.add("Coleccion destino no tiene el tipo 'Idov Owner' para las Files");
+					FilesOwner=new CompleteElementType(-2l,"Generado",Files);
+					}
+				generaTablaOdaClavyFiles(coleccionActual.getEstructuras());
+				}
+			
+			if (URLS!=null)
+			{
+				URI=findURI(URLS.getSons());
+				if (URI==null)
+					{
+					Log.add("Coleccion destino no tiene el tipo 'URI' para las Urls");
+					URI=new CompleteElementType(-1l,"Generado",URLS);
+					}
+				generaTablaOdaClavyURLS(coleccionActual.getEstructuras());
+			}
+				
+			
 			
 			if (Files==null)
 				Log.add("File no encontrados en la coleccion de destino");
@@ -145,7 +189,41 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	 }
 	 
-	 /**
+	 private void generaTablaOdaClavyURLS(List<CompleteDocuments> estructuras) {
+		 
+		 for (CompleteDocuments completeDocuments : estructuras) {
+				if (completeDocuments.getDocument()==URLS)
+					{
+					for (CompleteElement Elements : completeDocuments.getDescription()) {
+						if (Elements.getHastype().getClavilenoid().equals(URI.getClavilenoid())&&Elements instanceof CompleteResourceElementURL)
+							{
+							TablaReparacionUrlsEquiv.put(((CompleteResourceElementURL)Elements).getValue(),completeDocuments.getClavilenoid());
+							TablaReparacionUrls.add(completeDocuments.getClavilenoid());
+							}
+					}	
+					}
+			}
+			
+	}
+
+	private void generaTablaOdaClavyFiles(List<CompleteDocuments> estructuras) {
+
+			for (CompleteDocuments completeDocuments : estructuras) {
+				if (completeDocuments.getDocument()==Files)
+					{
+					for (CompleteElement Elements : completeDocuments.getDescription()) {
+						if (Elements.getHastype().getClavilenoid().equals(FilesFisico.getClavilenoid())&&Elements instanceof CompleteResourceElementFile)
+							{
+							TablaReparacionFilesEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
+							TablaReparacionFiles.add(completeDocuments.getClavilenoid());
+							}
+					}	
+					}
+			}
+		
+	}
+
+	/**
 	  * 
 	  * @param metamodelGrammar
 	  */
@@ -163,7 +241,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private void generaTablaOdaClavyLink2(List<CompleteStructure> sons) {
 		for (CompleteStructure completeStructure : sons) {
 			if (completeStructure instanceof CompleteLinkElementType)
-				TablaLongIds.add(completeStructure.getClavilenoid());
+				TablaLiksIds.add(completeStructure.getClavilenoid());
 	
 			
 			generaTablaOdaClavyLink2(completeStructure.getSons());
@@ -524,17 +602,17 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		 Hoja Hoja_hssfRecursos= findRecursos(HojasEntrada);
 		 Hoja Hoja_hssfFiles= findArchivos(HojasEntrada);
 		 Hoja Hoja_hssfURL= findURLs(HojasEntrada);
-		   
+
+		if (Files!=null&&Hoja_hssfFiles!=null)
+			procesFiles(Hoja_hssfFiles,counterbase);
+			
+		if (URLS!=null&&Hoja_hssfURL!=null)
+			procesUrls(Hoja_hssfURL,counterbase);
+		 
 		if (VirtualObject!=null&&Hoja_hssfDatos!=null)
 		   procesVO(Hoja_hssfDatos,Hoja_hssfMetaDatos,Hoja_hssfRecursos,counterbase);
 		 
-		if (Files!=null&&Hoja_hssfFiles!=null)
-			   procesFiles(Hoja_hssfFiles,counterbase);
-		
-		if (URLS!=null&&Hoja_hssfURL!=null)
-			   procesUrls(Hoja_hssfURL,counterbase);
-		 
- 
+
 		 
 		 
 	 
@@ -549,13 +627,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		//TODO
-		URI=findURI(URLS.getSons());
-		if (URI==null)
-			{
-			Log.add("Coleccion destino no tiene el tipo 'URI' para las Urls");
-			URI=new CompleteElementType(-1l,"Generado",URLS);
-			}
+		
 		
 			proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false,false,true);
 	}
@@ -567,20 +639,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
-		
-		FilesFisico=findFilesFisico(Files.getSons());
-		FilesOwner=findOwner(Files.getSons());
-		if (FilesFisico==null)
-			{
-			Log.add("Coleccion destino no tiene el tipo 'File' para las Files");
-			FilesFisico=new CompleteElementType(-1l,"Generado",Files);
-			}
-		if (FilesOwner==null)
-		{
-		Log.add("Coleccion destino no tiene el tipo 'Idov Owner' para las Files");
-		FilesOwner=new CompleteElementType(-2l,"Generado",Files);
-		}
-		
+
 		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false,true,false);
 	}
 
@@ -640,7 +699,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     {
 			    	 try {
 			    		 
-			    		 //TODO
+			    		 //TODO 
 			    		 Long valueCeldaL; 
 			    		 Integer valueCeldaLI=null;
 						if (Valor_de_celda.startsWith("#"))
@@ -649,6 +708,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
 				    		 long valuecelda=(long)Valorposible;
 				    		 valueCeldaL = Long.valueOf(valuecelda);
+				    		 //TODO Evaluar si es un archivo y exixte, sino cambiar el Id
 			    			 }
 			    		 else
 			    			 {
@@ -724,7 +784,6 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 			    	try {
 			    		
-			    		//TODO
 			    		Long valueCeldaL;
 			    		if (Valor_de_celda.startsWith("#"))
 		    			 {
@@ -756,17 +815,24 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	{
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 
-			    	if (TablaLongIds.contains(C.getClavilenoid())&&Valor_de_celda.startsWith("#"))
-			    		Valor_de_celda=Valor_de_celda.substring(1);
-			    	else
+			    	if (TablaLiksIds.contains(C.getClavilenoid()))
 			    		{
-			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
-			    		 int valuecelda=(int)Valorposible;
-			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
-			    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
-			    		 if (valueCeldaL!=null)
-			    			 Valor_de_celda=Long.toString(valueCeldaL);
+			    		//TODO revisar si existe, es un link haci un virtual en los recursos o un link hacia un file en los files/ url
+			    		if (Valor_de_celda.startsWith("#"))
+			    			Valor_de_celda=Valor_de_celda.substring(1);
+			    		else
+			    		{
+			    			{
+					    		 double Valorposible = Double.parseDouble(Valor_de_celda);
+					    		 int valuecelda=(int)Valorposible;
+					    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+					    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+					    		 if (valueCeldaL!=null)
+					    			 Valor_de_celda=Long.toString(valueCeldaL);
+					    		}
 			    		}
+			    		}
+			    		
 			    	
 			    	CompleteTextElement CT=new CompleteTextElement(C, Valor_de_celda);
 			    	CT.setDocumentsFather(Doc);
@@ -828,7 +894,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	 try {
 
 
-			    		//TODO
+			    		//TODO 
 			    		 Long valueCeldaL;
 			    		 Integer valueCeldaLI=null;
 						if (Valor_de_celda.startsWith("#"))
@@ -837,6 +903,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
 				    		 long valuecelda=(long)Valorposible;
 				    		 valueCeldaL = Long.valueOf(valuecelda);
+				    		//TODO Evaluar si es un archivo y exixte, sino cambiar el Id
 			    			 }
 			    		 else
 			    			 {
@@ -945,17 +1012,25 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	
 			    	CompleteTextElementType C=hash.get(new Integer(ColumnaX));
 
-			    	if (TablaLongIds.contains(C.getClavilenoid())&&Valor_de_celda.startsWith("#"))
-			    		Valor_de_celda=Valor_de_celda.substring(1);
-			    	else
+			    	//TODO revisar si existe, es un link haci un virtual en los recursos o un link hacia un file en los files/ url
+			    	if (TablaLiksIds.contains(C.getClavilenoid()))
 			    		{
-			    		 double Valorposible = Double.parseDouble(Valor_de_celda);
-			    		 int valuecelda=(int)Valorposible;
-			    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
-			    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
-			    		 if (valueCeldaL!=null)
-			    			 Valor_de_celda=Long.toString(valueCeldaL);
+			    		if (Valor_de_celda.startsWith("#"))
+			    			Valor_de_celda=Valor_de_celda.substring(1);
+			    		else
+			    		{
+			    			{
+					    		 double Valorposible = Double.parseDouble(Valor_de_celda);
+					    		 int valuecelda=(int)Valorposible;
+					    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+					    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+					    		 if (valueCeldaL!=null)
+					    			 Valor_de_celda=Long.toString(valueCeldaL);
+					    		}
 			    		}
+			    		}
+			    		
+
 			    	
 			    	CompleteTextElement CT=new CompleteTextElement(C, Valor_de_celda);
 			    	CT.setDocumentsFather(Doc);
