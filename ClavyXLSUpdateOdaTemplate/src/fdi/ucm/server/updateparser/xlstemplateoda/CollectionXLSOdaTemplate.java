@@ -13,6 +13,7 @@ import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
 import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementFile;
+import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementURL;
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
@@ -216,7 +217,10 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 					for (CompleteElement Elements : completeDocuments.getDescription()) {
 						if (Elements.getHastype().getClavilenoid().equals(URI.getClavilenoid()))
 							{
-							TablaReparacionUrlsEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
+							if (Elements instanceof CompleteResourceElementFile)
+								TablaReparacionUrlsEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
+							if (Elements instanceof CompleteResourceElementURL)
+								TablaReparacionUrlsEquiv.put(((CompleteResourceElementURL)Elements).getValue(),completeDocuments.getClavilenoid());
 							TablaReparacionUrls.add(completeDocuments.getClavilenoid());
 							}
 					}	
@@ -233,7 +237,10 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 					for (CompleteElement Elements : completeDocuments.getDescription()) {
 						if (Elements.getHastype().getClavilenoid().equals(FilesFisico.getClavilenoid()))
 							{
-							TablaReparacionFilesEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
+							if (Elements instanceof CompleteResourceElementFile)
+								TablaReparacionFilesEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
+							if (Elements instanceof CompleteResourceElementURL)
+								TablaReparacionUrlsEquiv.put(((CompleteResourceElementURL)Elements).getValue(),completeDocuments.getClavilenoid());
 							TablaReparacionFiles.add(completeDocuments.getClavilenoid());
 							}
 					}	
