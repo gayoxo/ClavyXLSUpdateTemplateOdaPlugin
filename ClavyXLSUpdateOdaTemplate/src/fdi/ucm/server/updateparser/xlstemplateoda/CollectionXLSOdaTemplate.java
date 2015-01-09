@@ -859,7 +859,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     }
 			     
 			     
-			     else if (ColumnaX==1&&Datos)
+			     else if (ColumnaX==1&&(Datos||Files||Recursos))
 			     {
 			    	 if (FilaX!=1)
 				    	  Doc.setDescriptionText(Valor_de_celda);
