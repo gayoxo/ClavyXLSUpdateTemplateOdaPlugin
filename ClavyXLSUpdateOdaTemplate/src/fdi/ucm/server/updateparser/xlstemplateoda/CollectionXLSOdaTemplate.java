@@ -240,7 +240,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							if (Elements instanceof CompleteResourceElementFile)
 								TablaReparacionFilesEquiv.put(((CompleteResourceElementFile)Elements).getValue().getPath(),completeDocuments.getClavilenoid());
 							if (Elements instanceof CompleteResourceElementURL)
-								TablaReparacionUrlsEquiv.put(((CompleteResourceElementURL)Elements).getValue(),completeDocuments.getClavilenoid());
+								TablaReparacionFilesEquiv.put(((CompleteResourceElementURL)Elements).getValue(),completeDocuments.getClavilenoid());
 							TablaReparacionFiles.add(completeDocuments.getClavilenoid());
 							}
 					}	
