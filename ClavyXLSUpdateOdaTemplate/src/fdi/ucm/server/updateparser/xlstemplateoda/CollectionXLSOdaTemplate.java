@@ -859,9 +859,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     }
 			     
 			     
-			     else if (ColumnaX==1&&(Datos||Files||Recursos))
+			     else if (ColumnaX==1&&(Datos||Files||URls))
 			     {
-			    	 if (FilaX!=1)
+			    	 if (FilaX!=1||Files||URls)
 				    	  Doc.setDescriptionText(Valor_de_celda);
 
 			    	
@@ -1074,9 +1074,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 Documents.put(Doc.getClavilenoid(), Ambito);
 			    	 }
 			     }
-			     else if (ColumnaX==1&&Datos)
+			     else if (ColumnaX==1&&(Datos||Files||Recursos))
 			     {
-			    	 if (FilaX==1)
+			    	 if (FilaX==1||Files||Recursos)
 				    	 try {
 				    		 grammar.setClavilenoid(Long.parseLong(Valor_de_celda));
 							} catch (Exception e) {
