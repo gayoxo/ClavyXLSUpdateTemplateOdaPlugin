@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
@@ -205,7 +204,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	   */
 	 
-	  Imprimir_Consola(Hojas);
+	  Proceso_LecturaHojas(Hojas);
 	 
 	 }
 	 
@@ -619,7 +618,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 
 	  */
 	 
-	 private void Imprimir_Consola(List<Hoja> HojasEntrada) {
+	 private void Proceso_LecturaHojas(List<Hoja> HojasEntrada) {
 	 
 		 Long counterbase=Long.MIN_VALUE;
 	
@@ -652,7 +651,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
-		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
+		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
 		
 		proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false,false,true);
 		
@@ -668,6 +667,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			if (Docs.getDocument().getClavilenoid().equals(URLS.getClavilenoid()))
 				Lista.add(Docs);
 		}
+		
+		//TODO Por Aqui Hay que meterle mano
 		
 		ArrayList<CompleteDocuments> NoExisten=new ArrayList<CompleteDocuments>();
 		
@@ -687,6 +688,10 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 					Long Antiguo=completeDocuments.getClavilenoid();
 					completeDocuments.setClavilenoid(Nuevo);
 					TablaReparacionUrlsXLSOda.put(Antiguo, Nuevo);
+					}else
+					{
+					Long Antiguo=completeDocuments.getClavilenoid();
+					TablaReparacionUrlsXLSOda.put(Antiguo, Antiguo);
 					}
 					}
 			}
@@ -703,13 +708,17 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		Grammar.setClavilenoid(Files.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
-		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
+		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
 
 		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false,true,false);
+		
+		
 		
 		processFilesTables();
 		
 	}
+
+
 
 	/**
 	 * 
@@ -720,6 +729,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			if (Docs.getDocument().getClavilenoid().equals(Files.getClavilenoid()))
 				Lista.add(Docs);
 		}
+		
+		//TODO Por Aqui Hay que meterle mano
 		
 		ArrayList<CompleteDocuments> NoExisten=new ArrayList<CompleteDocuments>();
 		
@@ -740,6 +751,11 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 						completeDocuments.setClavilenoid(Nuevo);
 						TablaReparacionFilesXLSOda.put(Antiguo, Nuevo);
 						}
+					else
+						{
+						Long Antiguo=completeDocuments.getClavilenoid();	
+						TablaReparacionFilesXLSOda.put(Antiguo, Antiguo);
+						}
 					}
 			}
 			
@@ -757,7 +773,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		Grammar.setClavilenoid(VirtualObject.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
 		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
-		HashMap<Long,CompleteDocuments> Documents=new HashMap<Long,CompleteDocuments>();
+		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
 		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true,false,false,false);
 		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false,false,false,false);
 		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false,true,false,false);
@@ -767,10 +783,11 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 
 	private void proceshoja(CompleteGrammar grammar, Hoja hoja_hssfDatos,
 			HashMap<Integer, CompleteTextElementType> hash,
-			HashMap<String, CompleteTextElementType> hashPath, HashMap<Long, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos,Boolean Files, Boolean URls) {
+			HashMap<String, CompleteTextElementType> hashPath, HashMap<String, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos,Boolean Files, Boolean URls) {
 		
 		
 		HashMap<Long,Integer> Documents=new HashMap<Long,Integer>();
+		HashSet<String> DocumentsIds=new HashSet<String>();
 		
 		if (hoja_hssfDatos instanceof HojaAntigua)
 		{
@@ -782,7 +799,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			 
 				  CompleteDocuments Doc=new CompleteDocuments(coleccionstatica, grammar, "", "");  
 						
-				  
+				
+			
 			   List<HSSFCell> Lista_celda_temporal = Datos_celdas.get(FilaX);
 			   
 			   Integer Ambito=0;	
@@ -799,6 +817,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			     
 			     if (ColumnaX==0)
 			     {
+			    	 
+			    	 boolean ignorado=false;
+			    	 
 			    	 try {
 			    		 
 			    		 //TODO 
@@ -821,12 +842,24 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				    		 if (valueCeldaL==null)
 				    			 valueCeldaL=(long)valuecelda;
 			    			 }
-			    		 
-			    		 
-			    		 
-			    		 CompleteDocuments Doc2 = documents.get(valueCeldaL );
-			    		 if (Doc2!=null)
-			    			 Doc=Doc2;
+			    							
+						
+						if (FilaX!=0&&Datos&&(FilaX!=1||Files||URls))
+							if (!DocumentsIds.contains(Valor_de_celda))
+							{
+								DocumentsIds.add(Valor_de_celda);
+							}
+							else {
+								ignorado=true;
+							}
+							
+			    		 CompleteDocuments Doc2 = documents.get(Valor_de_celda );
+			    		 if (Doc2!=null){
+				    			 if (!ignorado)
+				    				 Doc=Doc2;
+				    			 else
+				    				 Log.add("Warning: In tab="+hoja_hssfDatos.getName() + " in file=" + FilaX +" element in Column=0 with ID=" +Valor_de_celda+ " is duplicated, this file data will be ignored in result");
+			    		 }
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
@@ -836,14 +869,22 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		    			 Doc.getDescription().add(CTE);
 		    			 }
 			    		 if (FilaX!=0&&(FilaX!=1||Files||URls))
-			    			coleccionstatica.getEstructuras().add(Doc);
-			    		 documents.put(valueCeldaL, Doc);
+			    			{
+
+			    				 coleccionstatica.getEstructuras().add(Doc);
+			    			
+			    			}
+			    		 documents.put(Valor_de_celda, Doc);
 			    		 }
 						} catch (Exception e) {
 							Doc.setClavilenoid(counterbase);
 							if (FilaX!=0&&(FilaX!=1||Files||URls))
-								coleccionstatica.getEstructuras().add(Doc);
-							 documents.put(counterbase, Doc);
+								{
+
+									coleccionstatica.getEstructuras().add(Doc);
+								
+								}
+							 documents.put(Long.toString(counterbase), Doc);
 							counterbase++;
 						}
 			    	 
@@ -929,33 +970,54 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		{
 			    		if (Valor_de_celda.startsWith("#"))
 			    			{
+			    			
+			    			
 			    			Valor_de_celda=Valor_de_celda.substring(1);
+			    			
+			    			Long Nuevo1=TablaReparacionFilesXLSOda.get(Valor_de_celda);
+				    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(Valor_de_celda);
+				    		 
+				    		 if (Nuevo2!=null)
+				    			 Valor_de_celda=Long.toString(Nuevo2);
+				    		 
+				    		 if (Nuevo1!=null)
+				    			 Valor_de_celda=Long.toString(Nuevo1);
+			    			
 			    			}
-			    		
-			    		
+			    		else
+			    		{
 			    		try {
 			    			double Valorposible = Double.parseDouble(Valor_de_celda);
 				    		 int valuecelda=(int)Valorposible;
 				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
-				    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+				    		 
 				    		 
 				    		 Long valueCeldaLIL=(long) valueCeldaLI;
 				    		 
 				    		 Long Nuevo1=TablaReparacionFilesXLSOda.get(valueCeldaLIL);
 				    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(valueCeldaLIL);
+				    		 Long Nuevo3=TablaOdaClavyDocuments.get(valueCeldaLI);
+				    		 
+				    		 Long valueCeldaL=null;
 				    		 
 				    		 if (Nuevo2!=null)
 				    			 valueCeldaL=Nuevo2;
 				    		 
 				    		 if (Nuevo1!=null)
-				    			 valueCeldaL=Nuevo1; 
+				    			 valueCeldaL=Nuevo1;
 				    		 
-				    		 Valor_de_celda= Long.toString(valueCeldaL);
+				    		 if (Nuevo3!=null)
+				    			 valueCeldaLIL = Nuevo3;
+				    		 
+				    		 
+				    		 if (valueCeldaL!=null)
+				    			 Valor_de_celda= Long.toString(valueCeldaL);
+
 				    				 
 						} catch (Exception e) {
 							
 						}
-			    		
+			    		}
 			    		
 			    		}
 			    		
@@ -1017,9 +1079,13 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			 
 			     if (ColumnaX==0)
 			     {
+			    	 boolean ignorado=false;
+			    	 
 			    	 try {
 
 
+			    		 
+			    		 
 			    		//TODO 
 			    		 Long valueCeldaL;
 			    		 Integer valueCeldaLI=null;
@@ -1040,9 +1106,23 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				    			 valueCeldaL=(long)valuecelda;
 			    			 }
 			    		 
-			    		 CompleteDocuments Doc2 = documents.get(valueCeldaL );
-			    		 if (Doc2!=null)
-			    			 Doc=Doc2;
+						if (FilaX!=0&&Datos&&(FilaX!=1||Files||URls))
+							if (!DocumentsIds.contains(Valor_de_celda))
+							{
+								DocumentsIds.add(Valor_de_celda);
+							}
+							else {
+								ignorado=true;
+							}
+						
+						
+			    		 CompleteDocuments Doc2 = documents.get(Valor_de_celda );
+			    		 if (Doc2!=null){
+				    			 if (!ignorado)
+				    			 Doc=Doc2;
+				    		 else
+				    			 Log.add("Warning: In tab="+hoja_hssfDatos.getName() + " in file=" + FilaX +" element in Column=0 with ID=" +Valor_de_celda+ " is duplicated, this file data will be ignored in result");
+			    		 }
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
@@ -1053,16 +1133,22 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 }
 			    		 
 			    		 if (FilaX!=0&&(FilaX!=1||Files||URls))
-			    			 coleccionstatica.getEstructuras().add(Doc);
-			    		 else
-			    			 
-			    		 documents.put(valueCeldaL, Doc);
+			    			 {
+			    			 	 
+									coleccionstatica.getEstructuras().add(Doc);
+								 
+			    			 }
+	
+			    			 documents.put(Valor_de_celda, Doc);
+			    		 
 			    		 }
 						} catch (Exception e) {
 							Doc.setClavilenoid(counterbase);
 							 if (FilaX!=0&&(FilaX!=1||Files||URls))
-								coleccionstatica.getEstructuras().add(Doc);
-							 documents.put(counterbase, Doc);
+								{
+										coleccionstatica.getEstructuras().add(Doc);
+								}
+							 documents.put(Long.toString(counterbase), Doc);
 							counterbase++;
 						}
 			    	 
@@ -1147,17 +1233,65 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	if (TablaLiksIds.contains(C.getClavilenoid()))
 			    		{
 			    		if (Valor_de_celda.startsWith("#"))
-			    			Valor_de_celda=Valor_de_celda.substring(1);
-			    		else
-			    		{
+			    			
 			    			{
-					    		 double Valorposible = Double.parseDouble(Valor_de_celda);
-					    		 int valuecelda=(int)Valorposible;
-					    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
-					    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
-					    		 if (valueCeldaL!=null)
-					    			 Valor_de_celda=Long.toString(valueCeldaL);
-					    		}
+			    			Valor_de_celda=Valor_de_celda.substring(1);
+			    			
+			    			
+			    			Long Nuevo1=TablaReparacionFilesXLSOda.get(Valor_de_celda);
+				    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(Valor_de_celda);
+				    		 
+				    		 if (Nuevo2!=null)
+				    			 Valor_de_celda=Long.toString(Nuevo2);
+				    		 
+				    		 if (Nuevo1!=null)
+				    			 Valor_de_celda=Long.toString(Nuevo1);
+			    			
+			    			}
+//				    		else
+//				    		{
+//				    			{
+//						    		 double Valorposible = Double.parseDouble(Valor_de_celda);
+//						    		 int valuecelda=(int)Valorposible;
+//						    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+//						    		 Long valueCeldaL = TablaOdaClavyDocuments.get(valueCeldaLI);
+//						    		 if (valueCeldaL!=null)
+//						    			 Valor_de_celda=Long.toString(valueCeldaL);
+//						    		}
+//				    		}
+			    		else{
+			    		try {
+			    			double Valorposible = Double.parseDouble(Valor_de_celda);
+				    		 int valuecelda=(int)Valorposible;
+				    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+				    		 
+				    		 
+				    		 Long valueCeldaLIL=(long) valueCeldaLI;
+				    		 
+				    		 Long Nuevo1=TablaReparacionFilesXLSOda.get(valueCeldaLIL);
+				    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(valueCeldaLIL);
+				    		 Long Nuevo3=TablaOdaClavyDocuments.get(valueCeldaLI);
+				    		 
+				    		 Long valueCeldaL=null;
+				    		 
+				    		 if (Nuevo2!=null)
+				    			 valueCeldaL=Nuevo2;
+				    		 
+				    		 if (Nuevo1!=null)
+				    			 valueCeldaL=Nuevo1;
+				    		 
+				    		 if (Nuevo3!=null)
+				    			 valueCeldaLIL = Nuevo3;
+				    		 
+				    		 
+				    		 if (valueCeldaL!=null)
+				    			 Valor_de_celda= Long.toString(valueCeldaL);
+
+				    				 
+						} catch (Exception e) {
+							
+						}
+			    		
 			    		}
 			    		}
 			    		
