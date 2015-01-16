@@ -863,7 +863,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
-			    		 if (valueCeldaLI!=null)
+			    		 if (valueCeldaLI!=null&&Datos&&!Files&&!URls)
 		    			 {
 		    			 CompleteTextElement CTE=new CompleteTextElement(IDOV, Integer.toString(valueCeldaLI));
 		    			 Doc.getDescription().add(CTE);
@@ -1007,7 +1007,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				    			 valueCeldaL=Nuevo1;
 				    		 
 				    		 if (Nuevo3!=null)
-				    			 valueCeldaLIL = Nuevo3;
+				    			 valueCeldaL = Nuevo3;
 				    		 
 				    		 
 				    		 if (valueCeldaL!=null)
@@ -1126,7 +1126,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    		 else
 			    		 {
 			    		 Doc.setClavilenoid(valueCeldaL);
-			    		 if (valueCeldaLI!=null)
+			    		 if (valueCeldaLI!=null&&Datos&&!Files&&!URls)
 			    			 {
 			    			 CompleteTextElement CTE=new CompleteTextElement(IDOV, Integer.toString(valueCeldaLI));
 			    			 Doc.getDescription().add(CTE);
@@ -1281,7 +1281,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				    			 valueCeldaL=Nuevo1;
 				    		 
 				    		 if (Nuevo3!=null)
-				    			 valueCeldaLIL = Nuevo3;
+				    			 valueCeldaL = Nuevo3;
 				    		 
 				    		 
 				    		 if (valueCeldaL!=null)
