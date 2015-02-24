@@ -179,7 +179,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 					Log.add("Coleccion destino no tiene el tipo 'Resources' para las Virtual Object");
 					Resource=new CompleteElementType(-1l,"Generado",VirtualObject);
 					}
-				generaTablaOdaClavyURLS(coleccionActual.getEstructuras());
+				//generaTablaOdaClavyURLS(coleccionActual.getEstructuras());
 			}
 				
 	
@@ -655,10 +655,12 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		Grammar.setClavilenoid(URLS.getClavilenoid());
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
-		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
+//		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
 		
-		proceshoja(Grammar,hoja_hssfURL,Hash,HashPath,Documents,counterbase, true,false,false,true);
+		proceshoja(Grammar,hoja_hssfURL,Hash,
+//				HashPath,
+				Documents,counterbase, true,false,false,true);
 		
 		processUrlsTables();
 	}
@@ -712,10 +714,12 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
 		Grammar.setClavilenoid(Files.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
-		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
+//		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
 
-		proceshoja(Grammar,hoja_hssfFiles,Hash,HashPath,Documents,counterbase, true,false,true,false);
+		proceshoja(Grammar,hoja_hssfFiles,Hash,
+//				HashPath,
+				Documents,counterbase, true,false,true,false);
 		
 		
 		
@@ -777,11 +781,17 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		coleccionstatica.getMetamodelGrammar().add(Grammar);
 		Grammar.setClavilenoid(VirtualObject.getClavilenoid());
 		HashMap<Integer, CompleteTextElementType> Hash=new HashMap<Integer, CompleteTextElementType>();
-		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
+//		HashMap<String, CompleteTextElementType> HashPath=new HashMap<String, CompleteTextElementType>();
 		HashMap<String,CompleteDocuments> Documents=new HashMap<String,CompleteDocuments>();
-		proceshoja(Grammar,hoja_hssfDatos,Hash,HashPath,Documents,counterbase, true,false,false,false);
-		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,HashPath,Documents,counterbase, false,false,false,false);
-		proceshoja(Grammar,hoja_hssfRecursos,Hash,HashPath,Documents,counterbase, false,true,false,false);
+		proceshoja(Grammar,hoja_hssfDatos,Hash,
+//				HashPath,
+				Documents,counterbase, true,false,false,false);
+		proceshoja(Grammar,hoja_hssfMetaDatos,Hash,
+//				HashPath,
+				Documents,counterbase, false,false,false,false);
+		proceshoja(Grammar,hoja_hssfRecursos,Hash,
+//				HashPath,
+				Documents,counterbase, false,true,false,false);
 		
 	}
 
@@ -791,12 +801,13 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	@SuppressWarnings("unchecked")
 	private void proceshoja(CompleteGrammar grammar, Hoja hoja_hssfDatos,
 			HashMap<Integer, CompleteTextElementType> hash,
-			HashMap<String, CompleteTextElementType> hashPath, HashMap<String, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos,Boolean Files, Boolean URls) {
+//			HashMap<String, CompleteTextElementType> hashPath,
+			HashMap<String, CompleteDocuments> documents, Long counterbase,Boolean Datos,Boolean Recursos,Boolean Files, Boolean URls) {
 		
 		
 		HashMap<Long,Integer> Documents=new HashMap<Long,Integer>();
 		HashSet<String> DocumentsIds=new HashSet<String>();
-		
+		HashMap<String, CompleteTextElementType> hashPath=new HashMap<String, CompleteTextElementType>();
 		
 		boolean nueva=false;
 		
