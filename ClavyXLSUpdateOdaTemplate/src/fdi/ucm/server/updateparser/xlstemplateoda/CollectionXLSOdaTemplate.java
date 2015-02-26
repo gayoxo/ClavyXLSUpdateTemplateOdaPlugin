@@ -4,10 +4,13 @@
 package fdi.ucm.server.updateparser.xlstemplateoda;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
@@ -63,6 +66,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private CompleteElementType FilesOwner;
 	private HashSet<Long> TablaLiksIds;
 	private HashSet<Long> TablaNumerosIds;
+	private HashSet<Long> TablaFechaIds;
 	private HashMap<String,Long> TablaReparacionFilesEquiv;
 	private HashMap<String,Long> TablaReparacionUrlsEquiv;
 	private HashSet<Long> TablaReparacionFiles;
@@ -113,6 +117,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			TablaOdaClavyDocuments= new HashMap<Integer,Long>();
 			TablaLiksIds= new HashSet<Long>();
 			TablaNumerosIds= new HashSet<Long>();
+			TablaFechaIds= new HashSet<Long>();
 			TablaReparacionFilesEquiv= new HashMap<String,Long>();
 			TablaReparacionFilesXLSOda= new HashMap<Long,Long>();
 			TablaReparacionUrlsEquiv= new HashMap<String,Long>();
@@ -123,7 +128,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			
 			generaTablaOdaClavyModel1(coleccionActual.getMetamodelGrammar());
 			generaTablaOdaClavyDocuments(coleccionActual.getEstructuras());
-			generaTablaOdaClavyLink1(coleccionActual.getMetamodelGrammar());
+			generaTablaOdaClavyLinkNumberDate1(coleccionActual.getMetamodelGrammar());
 			
 			
 			Files=findFiles(coleccionActual.getMetamodelGrammar());
@@ -255,9 +260,9 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	  * 
 	  * @param metamodelGrammar
 	  */
-	 private void generaTablaOdaClavyLink1(List<CompleteGrammar> metamodelGrammar) {
+	 private void generaTablaOdaClavyLinkNumberDate1(List<CompleteGrammar> metamodelGrammar) {
 		 for (CompleteGrammar completeGrammar : metamodelGrammar) {
-			 generaTablaOdaClavyLink2(completeGrammar.getSons());
+			 generaTablaOdaClavyLinkNumberDate2(completeGrammar.getSons());
 			}
 		
 	}
@@ -266,15 +271,18 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	  * 
 	  * @param sons
 	  */
-	private void generaTablaOdaClavyLink2(List<CompleteStructure> sons) {
+	private void generaTablaOdaClavyLinkNumberDate2(List<CompleteStructure> sons) {
 		for (CompleteStructure completeStructure : sons) {
 			if (completeStructure instanceof CompleteLinkElementType)
 				TablaLiksIds.add(completeStructure.getClavilenoid());
 			else
 				if (completeStructure instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isNumeric((CompleteTextElementType)completeStructure))
 					TablaNumerosIds.add(completeStructure.getClavilenoid());
+				else
+					if (completeStructure instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isDatos((CompleteTextElementType)completeStructure))
+						TablaFechaIds.add(completeStructure.getClavilenoid());
 			
-			generaTablaOdaClavyLink2(completeStructure.getSons());
+			generaTablaOdaClavyLinkNumberDate2(completeStructure.getSons());
 				
 			
 		}
@@ -1075,11 +1083,77 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	else if (TablaNumerosIds.contains(C.getClavilenoid()))
 			    	{
 			    		try {
-			    			Double.parseDouble(Valor_de_celda);
+			    			double D = Double.parseDouble(Valor_de_celda);
+			    			Valor_de_celda=Double.toString(D);
 						} catch (Exception e) {
 							Log.add("Problema en el parseo de la tabla: "+ hoja_hssfDatos.getName() +" en columna: " + ColumnaX + " fila: " + FilaX + " con el valor de la celda "+ "\'"+Valor_de_celda+"\'" +", el elemento numerico apunta a un valor que no se ha podida calcular como numerico y sera ignorado en el proceso de actualizacion en OdA" );
 						}
 			    		
+			    	}
+			    	else if (TablaFechaIds.contains(C.getClavilenoid()))
+			    	{
+			    		Date fecha = null;
+						//yyyy-MM-dd HH:mm:ss
+						try {
+							SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							fecha = formatoDelTexto.parse(Valor_de_celda);
+						} catch (Exception e) {
+							//Nada
+							fecha = null;
+						}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyyMMdd");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yyyy");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yy");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							Log.add("Error en formato del campo fecha, solo formatos compatibles yyyy-MM-dd HH:mm:ss ó yyyy-MM-dd HH:mm ó yyyy-MM-dd ó yyyyMMdd ó dd/MM/yyyy ó dd/MM/yy");
+						else
+						{
+							DateFormat df = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+							Valor_de_celda=df.format(fecha);
+						}
 			    	}
 			    		
 			    	
