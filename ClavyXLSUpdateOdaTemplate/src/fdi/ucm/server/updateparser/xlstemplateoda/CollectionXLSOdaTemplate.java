@@ -1148,7 +1148,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							}
 						
 						if (fecha==null)
-							Log.add("Error en formato del campo fecha, solo formatos compatibles yyyy-MM-dd HH:mm:ss ó yyyy-MM-dd HH:mm ó yyyy-MM-dd ó yyyyMMdd ó dd/MM/yyyy ó dd/MM/yy");
+							Log.add("Error en formato del campo fecha con valor \""+Valor_de_celda+"\", solo formatos compatibles yyyy-MM-dd HH:mm:ss ó yyyy-MM-dd HH:mm ó yyyy-MM-dd ó yyyyMMdd ó dd/MM/yyyy ó dd/MM/yy");
 						else
 						{
 							DateFormat df = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
