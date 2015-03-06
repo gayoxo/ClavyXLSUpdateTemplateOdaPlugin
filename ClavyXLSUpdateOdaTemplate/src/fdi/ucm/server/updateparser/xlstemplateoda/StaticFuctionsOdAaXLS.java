@@ -291,5 +291,20 @@ public class StaticFuctionsOdAaXLS {
 		return false;
 	}
 
+	public static boolean isDate(CompleteElementType attribute) {
+		ArrayList<CompleteOperationalView> Shows = attribute.getShows();
+		for (CompleteOperationalView show : Shows) {	
+			if (show.getName().equals(StaticNamesOdAaXLS.METATYPE))
+			{
+				ArrayList<CompleteOperationalValueType> ShowValue = show.getValues();
+				for (CompleteOperationalValueType showValues : ShowValue) {
+					if (showValues.getName().equals(StaticNamesOdAaXLS.METATYPETYPE))
+							if (showValues.getDefault().equals(StaticNamesOdAaXLS.DATE)) 
+										return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 }

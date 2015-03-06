@@ -279,7 +279,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				if (completeStructure instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isNumeric((CompleteTextElementType)completeStructure))
 					TablaNumerosIds.add(completeStructure.getClavilenoid());
 				else
-					if (completeStructure instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isDatos((CompleteTextElementType)completeStructure))
+					if (completeStructure instanceof CompleteTextElementType&&StaticFuctionsOdAaXLS.isDate((CompleteTextElementType)completeStructure))
 						TablaFechaIds.add(completeStructure.getClavilenoid());
 			
 			generaTablaOdaClavyLinkNumberDate2(completeStructure.getSons());
@@ -1092,8 +1092,36 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    	}
 			    	else if (TablaFechaIds.contains(C.getClavilenoid()))
 			    	{
+			    		
 			    		Date fecha = null;
-						//yyyy-MM-dd HH:mm:ss
+			    		
+			    		try {
+				    		if (nueva)
+							   {
+								   XSSFCell hssfCell = ((List<XSSFCell>)Lista_celda_temporal).get(ColumnaX);
+								     
+									 if (hssfCell!=null)  
+										 fecha = hssfCell.getDateCellValue();
+									 else 
+										 fecha=null;
+							   }
+							   else
+							   {
+								   HSSFCell hssfCell = ((List<HSSFCell>)Lista_celda_temporal).get(ColumnaX);
+								     
+									 if (hssfCell!=null)  
+										 fecha = hssfCell.getDateCellValue();
+									 else 
+										 fecha=null;
+						     
+							   }
+			    		} catch (Exception e) {
+							//Nada
+							fecha = null;
+						}
+			    		
+			    		
+			    		if (fecha==null)
 						try {
 							SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							fecha = formatoDelTexto.parse(Valor_de_celda);
@@ -1114,6 +1142,15 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 						if (fecha==null)
 							try {
 								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+								fecha = formatoDelTexto.parse(Valor_de_celda);
+							} catch (Exception e) {
+								//Nada
+								fecha = null;
+							}
+						
+						if (fecha==null)
+							try {
+								SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd-MM-yyyy");
 								fecha = formatoDelTexto.parse(Valor_de_celda);
 							} catch (Exception e) {
 								//Nada
@@ -1148,10 +1185,10 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 							}
 						
 						if (fecha==null)
-							Log.add("Error en formato del campo fecha con valor \""+Valor_de_celda+"\", solo formatos compatibles yyyy-MM-dd HH:mm:ss ó yyyy-MM-dd HH:mm ó yyyy-MM-dd ó yyyyMMdd ó dd/MM/yyyy ó dd/MM/yy");
+							Log.add("Error en formato del campo fecha con valor \""+Valor_de_celda+"\", solo formatos compatibles yyyy-MM-dd HH:mm:ss ó yyyy-MM-dd HH:mm ó yyyy-MM-dd ó yyyyMMdd ó dd/MM/yyyy ó dd/MM/yy ó dd-MM-yyyy");
 						else
 						{
-							DateFormat df = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+							DateFormat df = new SimpleDateFormat ("yyyy-MM-dd");
 							Valor_de_celda=df.format(fecha);
 						}
 			    	}

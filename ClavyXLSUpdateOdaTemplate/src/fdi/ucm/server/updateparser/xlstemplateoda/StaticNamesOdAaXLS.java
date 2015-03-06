@@ -29,5 +29,6 @@ public class StaticNamesOdAaXLS {
 	public static final String METATYPE = "Meta Type";
 	public static final String METATYPETYPE = "Type";
 	public static final String NUMERIC = "Numeric";
+	public static final String DATE = "Date";
 	
 }
