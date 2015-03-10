@@ -888,8 +888,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			 {
 			    			 Valor_de_celda=Valor_de_celda.substring(1);
 			    			 double Valorposible = Double.parseDouble(Valor_de_celda);
-				    		 long valuecelda=(long)Valorposible;
-				    		 valueCeldaL = Long.valueOf(valuecelda);
+			    			 int valuecelda=(int)Valorposible;
+				    		 valueCeldaL=(long)valuecelda;
 
 			    			 }
 			    		 else
@@ -902,6 +902,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 				    			 valueCeldaL=(long)valuecelda;
 			    			 }
 			    							
+						if (valueCeldaL!=null)
+			    			 Valor_de_celda=Long.toString(valueCeldaL);
 						
 						if (FilaX!=0&&Datos&&(FilaX!=1||Files||URls))
 							if (!DocumentsIds.contains(Valor_de_celda))
@@ -1033,15 +1035,27 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			    			
 			    			
 			    			Valor_de_celda=Valor_de_celda.substring(1);
+			    			try {
+			    				double Valorposible = Double.parseDouble(Valor_de_celda);
+			    				 int valuecelda=(int)Valorposible;
+					    		 Integer valueCeldaLI = Integer.valueOf(valuecelda);
+					    		 Long valueCeldaLIL=(long) valueCeldaLI;
+					    		 
+			    				Long Nuevo1=TablaReparacionFilesXLSOda.get(valueCeldaLIL);
+					    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(valueCeldaLIL);
+					    		 
+					    		 if (Nuevo2!=null)
+					    			 Valor_de_celda=Long.toString(Nuevo2);
+					    		 
+					    		 if (Nuevo1!=null)
+					    			 Valor_de_celda=Long.toString(Nuevo1);
+					    		 
+							} catch (Exception e) {
+								// TODO: handle exception
+							}
 			    			
-			    			Long Nuevo1=TablaReparacionFilesXLSOda.get(Valor_de_celda);
-				    		 Long Nuevo2=TablaReparacionUrlsXLSOda.get(Valor_de_celda);
-				    		 
-				    		 if (Nuevo2!=null)
-				    			 Valor_de_celda=Long.toString(Nuevo2);
-				    		 
-				    		 if (Nuevo1!=null)
-				    			 Valor_de_celda=Long.toString(Nuevo1);
+			    			
+			    			
 			    			
 			    			}
 			    		else
