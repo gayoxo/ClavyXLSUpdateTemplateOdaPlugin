@@ -219,7 +219,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 private void generaTablaOdaClavyURLS(List<CompleteDocuments> estructuras) {
 		 
 		 for (CompleteDocuments completeDocuments : estructuras) {
-				if (completeDocuments.getDocument()==URLS)
+				if (StaticFuctionsOdAaXLS.isInGrammar(completeDocuments,URLS))
 					{
 					for (CompleteElement Elements : completeDocuments.getDescription()) {
 						if (Elements.getHastype().getClavilenoid().equals(URI.getClavilenoid()))
@@ -239,7 +239,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private void generaTablaOdaClavyFiles(List<CompleteDocuments> estructuras) {
 
 			for (CompleteDocuments completeDocuments : estructuras) {
-				if (completeDocuments.getDocument()==Files)
+				if (StaticFuctionsOdAaXLS.isInGrammar(completeDocuments,Files))
 					{
 					for (CompleteElement Elements : completeDocuments.getDescription()) {
 						if (Elements.getHastype().getClavilenoid().equals(FilesFisico.getClavilenoid()))
@@ -679,7 +679,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private void processUrlsTables() {
 		ArrayList<CompleteDocuments> Lista=new ArrayList<CompleteDocuments>();
 		for (CompleteDocuments Docs : coleccionstatica.getEstructuras()) {
-			if (Docs.getDocument().getClavilenoid().equals(URLS.getClavilenoid()))
+			if (StaticFuctionsOdAaXLS.isInGrammar(Docs,URLS))
 				Lista.add(Docs);
 		}
 		
@@ -743,7 +743,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	private void processFilesTables() {
 		ArrayList<CompleteDocuments> Lista=new ArrayList<CompleteDocuments>();
 		for (CompleteDocuments Docs : coleccionstatica.getEstructuras()) {
-			if (Docs.getDocument().getClavilenoid().equals(Files.getClavilenoid()))
+			if (StaticFuctionsOdAaXLS.isInGrammar(Docs,Files))
 				Lista.add(Docs);
 		}
 		
@@ -836,7 +836,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 			 
 			  for (int FilaX = 0; FilaX < ((List<Object>)Datos_celdas).size(); FilaX++) {
 			 
-				  CompleteDocuments Doc=new CompleteDocuments(coleccionstatica, grammar, "", "");  
+				  CompleteDocuments Doc=new CompleteDocuments(coleccionstatica, "", "");  
 						
 				
 				Object Lista_celda_temporal;
