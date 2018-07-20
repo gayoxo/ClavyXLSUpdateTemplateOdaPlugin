@@ -19,9 +19,7 @@ import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementU
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
-import fdi.ucm.server.modelComplete.collection.grammar.CompleteIterator;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteLinkElementType;
-import fdi.ucm.server.modelComplete.collection.grammar.CompleteStructure;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteTextElementType;
 import fdi.ucm.server.updateparser.xlstemplateoda.struture.Hoja;
 import fdi.ucm.server.updateparser.xlstemplateoda.struture.HojaAntigua;
@@ -271,8 +269,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	  * 
 	  * @param sons
 	  */
-	private void generaTablaOdaClavyLinkNumberDate2(List<CompleteStructure> sons) {
-		for (CompleteStructure completeStructure : sons) {
+	private void generaTablaOdaClavyLinkNumberDate2(List<CompleteElementType> sons) {
+		for (CompleteElementType completeStructure : sons) {
 			if (completeStructure instanceof CompleteLinkElementType)
 				TablaLiksIds.add(completeStructure.getClavilenoid());
 			else
@@ -326,8 +324,8 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 	 * 
 	 * @param sons
 	 */
-	private void generaTablaOdaClavyModel2(List<CompleteStructure> sons) {
-		for (CompleteStructure completeStructure : sons) {
+	private void generaTablaOdaClavyModel2(List<CompleteElementType> sons) {
+		for (CompleteElementType completeStructure : sons) {
 			if (completeStructure instanceof CompleteElementType)
 			{
 				Integer IdovOda=StaticFuctionsOdAaXLS.getIDODAD((CompleteElementType)completeStructure);
@@ -1291,7 +1289,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		 
 		String[] pathL=valor_de_celda.split("\\\\");
 		
-		CompleteStructure Padre=null;
+		CompleteElementType Padre=null;
 		
 		 if (pathL.length>1)
 			 Padre=producePadre(pathL,hashPath,grammar);
@@ -1312,7 +1310,7 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		return Salida;
 	}
 
-	private CompleteStructure producePadre(String[] pathL,
+	private CompleteElementType producePadre(String[] pathL,
 			HashMap<String, CompleteTextElementType> hashPath,CompleteGrammar CG) {
 		
 		String Acumulado = "";
@@ -1398,41 +1396,36 @@ public class CollectionXLSOdaTemplate implements InterfaceXLSOdaTemplateparser {
 		return null;
 	}
 	
-	private static CompleteElementType findFilesFisico(List<CompleteStructure> metaStructures) {
-		for (CompleteStructure completeStructure : metaStructures) {
+	private static CompleteElementType findFilesFisico(List<CompleteElementType> metaStructures) {
+		for (CompleteElementType completeStructure : metaStructures) {
 			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isFileFisico((CompleteElementType)completeStructure))
 				return (CompleteElementType) completeStructure;
 		}
 		return null;
 	}
 	
-	private static CompleteElementType findOwner(List<CompleteStructure> metaStructures) {
-		for (CompleteStructure completeStructure : metaStructures) {
+	private static CompleteElementType findOwner(List<CompleteElementType> metaStructures) {
+		for (CompleteElementType completeStructure : metaStructures) {
 			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isOwner((CompleteElementType)completeStructure))
 				return (CompleteElementType) completeStructure;
 		}
 		return null;
 	}
 	
-	private static CompleteElementType findURI(List<CompleteStructure> metaStructures) {
-		for (CompleteStructure completeStructure : metaStructures) {
+	private static CompleteElementType findURI(List<CompleteElementType> metaStructures) {
+		for (CompleteElementType completeStructure : metaStructures) {
 			if (completeStructure instanceof CompleteElementType&&StaticFuctionsOdAaXLS.isURI((CompleteElementType)completeStructure))
 				return (CompleteElementType) completeStructure;
 		}
 		return null;
 	}
 	
-	private static CompleteElementType findResources(ArrayList<CompleteStructure> sons) {
+	private static CompleteElementType findResources(ArrayList<CompleteElementType> sons) {
 		  
-		  for (CompleteStructure completeStruct : sons) {
-			  if (completeStruct instanceof CompleteIterator)
-				  for (CompleteStructure completeStruct2 : completeStruct.getSons()) {
-						if (completeStruct2 instanceof CompleteElementType && StaticFuctionsOdAaXLS.isResources((CompleteElementType)completeStruct2))
-							return (CompleteElementType)completeStruct2;
-					}
-		}
-		  
-		  
+		  for (CompleteElementType completeStruct : sons) {
+						if (completeStruct instanceof CompleteElementType && StaticFuctionsOdAaXLS.isResources((CompleteElementType)completeStruct))
+							return (CompleteElementType)completeStruct;
+		  }
 			return null;
 	}
 
